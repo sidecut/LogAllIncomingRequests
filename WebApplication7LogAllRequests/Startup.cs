@@ -58,19 +58,19 @@ namespace WebApplication7LogAllRequests
                 var traceIdentifier = context.TraceIdentifier;
                 var requestHeader = RequestHelper.GetRequestMethodAndUrl(context.Request);
                 var headers = RequestHelper.GetAllHeaders(context.Request);
-                var body = RequestHelper.ReadBodyIntoString(context.Request);
 
                 var directory = Path.Combine(env.ContentRootPath, "Logs");
                 var filename = traceIdentifier.Replace(':', '_');
                 var filepath = $@"{directory}\{filename}.http";
                 File.WriteAllText(filepath, $"{requestHeader}\n");
                 File.AppendAllLines(filepath, headers.Select(kv => $"{kv.Item1}: {kv.Item2}"));
-                File.AppendAllText(filepath, "\n");
-                File.AppendAllText(filepath, body);
-
-                // Log body
                 if (context.Request.ContentLength > 0)
                 {
+                    File.AppendAllText(filepath, "\n");
+                    var body = RequestHelper.ReadBodyIntoString(context.Request);
+                    File.AppendAllText(filepath, body);
+
+                    // Log body separately as well.
                     string extension = "http";
                     if (context.Request.ContentType?.Contains("xml") == true)
                     {
