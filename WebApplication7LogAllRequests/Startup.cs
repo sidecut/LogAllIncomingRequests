@@ -62,24 +62,32 @@ namespace WebApplication7LogAllRequests
 
                 var directory = Path.Combine(env.ContentRootPath, "Logs");
                 var filename = traceIdentifier.Replace(':', '_');
-                const string extension = "http";
-                //if (context.Request.ContentType?.Contains("xml") == true)
-                //{
-                //    extension = "xml";
-                //}
-                //else if (context.Request.ContentType?.Contains("json") == true)
-                //{
-                //    extension = "json";
-                //}
-                //else
-                //{
-                //    extension = "txt";
-                //}
-                var filepath = $@"{directory}\{filename}.{extension}";
+                var filepath = $@"{directory}\{filename}.http";
                 File.WriteAllText(filepath, $"{requestHeader}\n");
                 File.AppendAllLines(filepath, headers.Select(kv => $"{kv.Item1}: {kv.Item2}"));
                 File.AppendAllText(filepath, "\n");
                 File.AppendAllText(filepath, body);
+
+                // Log body
+                if (context.Request.ContentLength > 0)
+                {
+                    string extension = "http";
+                    if (context.Request.ContentType?.Contains("xml") == true)
+                    {
+                        extension = "xml";
+                    }
+                    else if (context.Request.ContentType?.Contains("json") == true)
+                    {
+                        extension = "json";
+                    }
+                    else
+                    {
+                        extension = "txt";
+                    }
+
+                    var bodyFilepath = $@"{directory}\{filename}.{extension}";
+                    File.WriteAllText(bodyFilepath, body);
+                }
 
                 await next.Invoke();
             };
