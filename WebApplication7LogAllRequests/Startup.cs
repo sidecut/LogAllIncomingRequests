@@ -63,6 +63,7 @@ namespace WebApplication7LogAllRequests
                 var filename = traceIdentifier.Replace(':', '_');
                 var filepath = $@"{directory}\{filename}.http";
                 File.WriteAllText(filepath, $"{requestHeader}\n");
+                File.AppendAllText(filepath, $"X-LogAllRequests-request-timestamp: {DateTime.Now:o}\n");
                 File.AppendAllLines(filepath, headers.Select(kv => $"{kv.Item1}: {kv.Item2}"));
                 if (context.Request.ContentLength > 0)
                 {
